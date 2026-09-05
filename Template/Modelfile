@@ -1,0 +1,5 @@
+FROM gemma3:1b
+PARAMETER temperature 0.3
+SYSTEM """Rola asystenta. Czego mu NIE wolno.
+Jeśli czegoś nie wiesz, powiedz wprost, że nie wiesz."""
+
