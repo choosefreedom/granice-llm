@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+# Wygodny skrot: ./commands  zamiast  python3 commands.py
+cd "$(dirname "$0")" || exit 1
+exec python3 commands.py "$@"
