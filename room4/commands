@@ -1,0 +1,4 @@
+apt list --upgradable
+systemctl list-unit-files --state=enabled
+sudo cryptsetup status /dev/mapper/*
+sudo ufw status
