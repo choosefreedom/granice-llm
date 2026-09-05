@@ -1,4 +1,4 @@
-# Wyniki komend — 2026-09-06 01:21
+# Wyniki komend — 2026-09-06 01:24
 
 ## `cat /etc/passwd
 `
@@ -92,10 +92,10 @@ root
 `
 
 ```
-Matching Defaults entries for red on wra:
+Matching Defaults entries for root on wra:
     env_reset, mail_badpass, secure_path=/usr/local/sbin\:/usr/local/bin\:/usr/sbin\:/usr/bin\:/sbin\:/bin\:/snap/bin, use_pty, pwfeedback
 
-User red may run the following commands on wra:
+User root may run the following commands on wra:
     (ALL : ALL) ALL
     (root) NOPASSWD: /usr/bin/mintdrivers-remove-live-media
     (root) NOPASSWD: /usr/bin/mintdrivers-load-broadcom-modules
@@ -107,32 +107,90 @@ User red may run the following commands on wra:
 `
 
 ```
-sudo: a terminal is required to read the password; either use the -S option to read from standard input or configure an askpass helper
-sudo: a password is required
+#
+# This file MUST be edited with the 'visudo' command as root.
+#
+# Please consider adding local content in /etc/sudoers.d/ instead of
+# directly modifying this file.
+#
+# See the man page for details on how to write a sudoers file.
+#
+Defaults	env_reset
+Defaults	mail_badpass
+Defaults	secure_path="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/snap/bin"
+
+# This fixes CVE-2005-4890 and possibly breaks some versions of kdesu
+# (#1011624, https://bugs.kde.org/show_bug.cgi?id=452532)
+Defaults	use_pty
+
+# This preserves proxy settings from user environments of root
+# equivalent users (group sudo)
+#Defaults:%sudo env_keep += "http_proxy https_proxy ftp_proxy all_proxy no_proxy"
+
+# This allows running arbitrary commands, but so does ALL, and it means
+# different sudoers have their choice of editor respected.
+#Defaults:%sudo env_keep += "EDITOR"
+
+# Completely harmless preservation of a user preference.
+#Defaults:%sudo env_keep += "GREP_COLOR"
+
+# While you shouldn't normally run git as root, you need to with etckeeper
+#Defaults:%sudo env_keep += "GIT_AUTHOR_* GIT_COMMITTER_*"
+
+# Per-user preferences; root won't have sensible values for them.
+#Defaults:%sudo env_keep += "EMAIL DEBEMAIL DEBFULLNAME"
+
+# "sudo scp" or "sudo rsync" should be able to use your SSH agent.
+#Defaults:%sudo env_keep += "SSH_AGENT_PID SSH_AUTH_SOCK"
+
+# Ditto for GPG agent
+#Defaults:%sudo env_keep += "GPG_AGENT_INFO"
+
+# Host alias specification
+
+# User alias specification
+
+# Cmnd alias specification
+
+# User privilege specification
+root	ALL=(ALL:ALL) ALL
+
+# Members of the admin group may gain root privileges
+%admin ALL=(ALL) ALL
+
+# Allow members of group sudo to execute any command
+%sudo	ALL=(ALL:ALL) ALL
+
+# See sudoers(5) for more information on "@include" directives:
+
+@includedir /etc/sudoers.d
 ```
 
 ## `sudo ls -la /etc/sudoers.d/
 `
 
 ```
-sudo: a terminal is required to read the password; either use the -S option to read from standard input or configure an askpass helper
-sudo: a password is required
+total 32
+drwxr-xr-x   2 root root  4096 Aug 31 14:19 .
+drwxr-xr-x 151 root root 12288 Sep  5 20:47 ..
+-r--r-----   1 root root    20 Feb  7  2019 0pwfeedback
+-r--r-----   1 root root   185 Aug 26  2025 mintdrivers
+-r--r-----   1 root root   206 Aug 26  2025 mintupdate
+-r--r-----   1 root root  1068 Jan 29  2024 README
 ```
 
 ## `sudo systemctl status ssh
 `
 
 ```
-sudo: a terminal is required to read the password; either use the -S option to read from standard input or configure an askpass helper
-sudo: a password is required
+Unit ssh.service could not be found.
 ```
 
 ## `sudo grep -E '^{PermitRootLogin|PasswordAuthentication|PubkeyAuthentication)' /etc/ssh/sshd_config
 `
 
 ```
-sudo: a terminal is required to read the password; either use the -S option to read from standard input or configure an askpass helper
-sudo: a password is required
+grep: /etc/ssh/sshd_config: No such file or directory
 ```
 
 ## `find /home /root -name authorized_keys -type f 2>/dev/null
@@ -192,8 +250,21 @@ Legend: LOAD   → Reflects whether the unit definition was properly loaded.
 `
 
 ```
-sudo: a terminal is required to read the password; either use the -S option to read from standard input or configure an askpass helper
-sudo: a password is required
+Netid State  Recv-Q Send-Q  Local Address:Port  Peer Address:PortProcess                                   
+udp   UNCONN 0      0             0.0.0.0:43553      0.0.0.0:*    users:(("avahi-daemon",pid=640,fd=14))   
+udp   UNCONN 0      0             0.0.0.0:5353       0.0.0.0:*    users:(("avahi-daemon",pid=640,fd=12))   
+udp   UNCONN 0      0       192.168.122.1:53         0.0.0.0:*    users:(("dnsmasq",pid=1029,fd=5))        
+udp   UNCONN 0      0          127.0.0.54:53         0.0.0.0:*    users:(("systemd-resolve",pid=553,fd=16))
+udp   UNCONN 0      0       127.0.0.53%lo:53         0.0.0.0:*    users:(("systemd-resolve",pid=553,fd=14))
+udp   UNCONN 0      0      0.0.0.0%virbr0:67         0.0.0.0:*    users:(("dnsmasq",pid=1029,fd=3))        
+udp   UNCONN 0      0                [::]:5353          [::]:*    users:(("avahi-daemon",pid=640,fd=13))   
+udp   UNCONN 0      0                [::]:39268         [::]:*    users:(("avahi-daemon",pid=640,fd=15))   
+tcp   LISTEN 0      4096        127.0.0.1:631        0.0.0.0:*    users:(("cupsd",pid=3888,fd=7))          
+tcp   LISTEN 0      32      192.168.122.1:53         0.0.0.0:*    users:(("dnsmasq",pid=1029,fd=6))        
+tcp   LISTEN 0      4096    127.0.0.53%lo:53         0.0.0.0:*    users:(("systemd-resolve",pid=553,fd=15))
+tcp   LISTEN 0      4096       127.0.0.54:53         0.0.0.0:*    users:(("systemd-resolve",pid=553,fd=17))
+tcp   LISTEN 0      4096        127.0.0.1:11434      0.0.0.0:*    users:(("ollama",pid=915,fd=3))          
+tcp   LISTEN 0      4096            [::1]:631           [::]:*    users:(("cupsd",pid=3888,fd=6))
 ```
 
 ## `apt list --upgradable
