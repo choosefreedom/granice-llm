@@ -1,1 +1,16 @@
-ls
+cat /etc/passwd
+grep -vE 'nologin|false' /etc/passwd
+getent group sudo
+getent group adm
+awk -F: '$3 == 0 {print $1}' /etc/passwd
+sudo -l
+sudo cat /etc/sudoers
+sudo ls -la /etc/sudoers.d/
+sudo systemctl status ssh
+sudo grep -E '^{PermitRootLogin|PasswordAuthentication|PubkeyAuthentication)' /etc/ssh/sshd_config
+find /home /root -name authorized_keys -type f 2>/dev/null
+systemctl list-units --type=service --state=running
+sudo ss -tulpn
+apt list --upgradable
+uname -a
+
