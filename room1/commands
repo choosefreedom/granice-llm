@@ -1,1 +1,6 @@
 ls
+whoami
+id
+cat /etc/passwd
+getent group sudo
+sudo grep 'Failed password' /var/log/auth.log
