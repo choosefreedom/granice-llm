@@ -19,7 +19,7 @@ COMMANDS = [
 
 with open("commands", "r", encoding="utf-8") as file:
     for line in file:
-        COMMANDS.append(line, end="")
+        COMMANDS.append(line)
 OUTPUT = "cmd_results.md"
 # -----------------------------------------------------------
 
