@@ -1,0 +1,5 @@
+ls
+lsblk -f
+cat /etc/crypttab
+last -F
+grep -Ei 'accepted|failed|session opened' /var/log/auth.log | tail -20
