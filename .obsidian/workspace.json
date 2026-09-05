@@ -13,28 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Template/Test.md",
+                "file": "Template/Todo.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "Test"
-            }
-          }
-        ]
-      },
-      {
-        "id": "94bda4657149e890",
-        "type": "tabs",
-        "children": [
-          {
-            "id": "c87b22c520bb1bc6",
-            "type": "leaf",
-            "state": {
-              "type": "graph",
-              "state": {},
-              "icon": "lucide-git-fork",
-              "title": "Graph view"
+              "title": "Todo"
             }
           }
         ]
@@ -202,12 +186,22 @@
       "bases:Create new base": false
     }
   },
-  "active": "bed7104d61a5214a",
+  "active": "868e64f4a8aba698",
   "lastOpenFiles": [
-    "Template/questions",
-    "questions",
-    "Template/Modelfile",
-    "Template/Test.md",
+    "Template/commands",
+    "Template/script.py",
+    "Template/runcmd",
+    "Template/run",
+    "Template/commands.py",
+    "Template/cmd_results.md",
+    "Template/ai_results.md",
+    "venv/bin/activate",
+    "venv/bin/Activate.ps1",
+    "venv/bin/activate.fish",
+    "venv/bin/activate.csh",
+    "venv/lib/python3.12/site-packages/pip-24.0.dist-info/REQUESTED",
+    "venv/lib/python3.12/site-packages/pip-24.0.dist-info/INSTALLER",
+    "Template/Todo.md",
     "Welcome.md"
   ]
 }
