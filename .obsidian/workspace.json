@@ -11,10 +11,14 @@
             "id": "868e64f4a8aba698",
             "type": "leaf",
             "state": {
-              "type": "empty",
-              "state": {},
+              "type": "markdown",
+              "state": {
+                "file": "Template/Test.md",
+                "mode": "source",
+                "source": false
+              },
               "icon": "lucide-file",
-              "title": "New tab"
+              "title": "Test"
             }
           }
         ]
@@ -200,6 +204,7 @@
   },
   "active": "bed7104d61a5214a",
   "lastOpenFiles": [
+    "Template/Test.md",
     "Welcome.md"
   ]
 }
