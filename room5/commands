@@ -1,0 +1,4 @@
+ps aux
+top
+systemctl list-unit-files --state=enabled
+sudo ss -tulpn

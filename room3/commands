@@ -1,0 +1,5 @@
+ls
+ss -tulpn
+sudo ufw status verbose
+ip -br addr
+sudo iptables -L -n -v
