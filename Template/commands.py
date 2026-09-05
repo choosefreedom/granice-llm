@@ -9,13 +9,17 @@ from datetime import datetime
 
 # --- komendy do uruchomienia (podmieniaj wedle potrzeby) ---
 COMMANDS = [
-    "ls -la",
-    "whoami",
-    "id",
-    "pwd",
-    "cat /etc/passwd",
+#    "ls -la",
+#    "whoami",
+#    "id",
+#    "pwd",
+#    "cat /etc/passwd",
 ]
 
+
+with open("commands", "r", encoding="utf-8") as file:
+    for line in file:
+        COMMANDS.append(line, end="")
 OUTPUT = "cmd_results.md"
 # -----------------------------------------------------------
 

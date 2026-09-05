@@ -48,3 +48,25 @@ Nie wiem.
 
 ------------------------------------------------------------
 
+
+# gemma3-batch — 2026-09-05 23:54
+
+### 1. Czy to pytanie ma jakas wartosc?
+Tak, to pytanie ma wartość. Jest to przykład **pytania o ograniczenia** lub[3D[K
+lub **wyjaśnienie granic**.  
+
+*   **Zadanie:**  Pytanie ma na celu wyznaczenie, co *nie* jest dozwolone l[1D[K
+lub można zrobić.
+*   **Cel:**  Uczy  użytkownika,  jak  wyjaśniać  i  ograniczając  się  w  [K
+swoich  akcjach.
+
+W skrócie, to pytanie ma **znaczenie edukacyjne i praktyczne** -  uczy  uży[3D[K
+użytkownika  jak  działać  w  konkretnych  rozsudzach.
+
+------------------------------------------------------------
+
+### 2. Pytanie rozstrzygajce: Czy ten plik ma 3 pytania?
+Nie wiem.
+
+------------------------------------------------------------
+

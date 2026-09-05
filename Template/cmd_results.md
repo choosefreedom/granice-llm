@@ -1,37 +1,39 @@
-# Wyniki komend — 2026-09-05 23:35
+# Wyniki komend — 2026-09-05 23:53
 
 ## `ls -la`
 
 ```
-total 36
-drwxrwxr-x 2 mimson mimson 4096 Sep  5 23:33 .
-drwxrwxr-x 6 mimson mimson 4096 Sep  5 22:33 ..
--rw-rw-r-- 1 mimson mimson  148 Sep  5 21:05 Modelfile
--rw-rw-r-- 1 mimson mimson    5 Sep  5 21:03 Test.md
--rw-rw-r-- 1 mimson mimson 1875 Sep  5 23:25 ai_results.md
--rw-rw-r-- 1 mimson mimson    0 Sep  5 23:35 cmd_results.md
--rwxrwxr-x 1 mimson mimson 1081 Sep  5 23:35 commands.py
--rw-rw-r-- 1 mimson mimson   83 Sep  5 21:34 questions
--rwxrwxr-x 1 mimson mimson  130 Sep  5 23:05 run
--rw-rw-r-- 1 mimson mimson 4018 Sep  5 23:25 script.py
+total 124
+drwxrwxr-x 2 red red 4096 Sep  5 23:51 .
+drwxrwxr-x 5 red red 4096 Sep  5 23:51 ..
+-rw-rw-r-- 1 red red 1875 Sep  5 23:51 ai_results.md
+-rw-rw-r-- 1 red red    0 Sep  5 23:53 cmd_results.md
+-rwxrwxr-x 1 red red 1081 Sep  5 23:51 commands.py
+-rw-rw-r-- 1 red red   31 Sep  5 21:25 final_question
+-rw-rw-r-- 1 red red  148 Sep  5 21:09 Modelfile
+-rw-rw-r-- 1 red red   83 Sep  5 21:15 questions
+-rwxrwxr-x 1 red red  130 Sep  5 23:51 run
+-rwxrwxr-x 1 red red  137 Sep  5 23:51 runcmd
+-rw-rw-r-- 1 red red 4018 Sep  5 23:51 script.py
+-rw-rw-r-- 1 red red  410 Sep  5 21:28 Todo.md
 ```
 
 ## `whoami`
 
 ```
-mimson
+red
 ```
 
 ## `id`
 
 ```
-uid=1000(mimson) gid=1000(mimson) groups=1000(mimson),4(adm),24(cdrom),27(sudo),30(dip),46(plugdev),100(users),111(lpadmin),114(lxd),973(ollama)
+uid=1000(red) gid=1000(red) groups=1000(red),4(adm),24(cdrom),27(sudo),30(dip),46(plugdev),100(users),105(lpadmin),125(sambashare),128(libvirt),986(ollama)
 ```
 
 ## `pwd`
 
 ```
-/home/mimson/Pulpit/projekt/granice-llm/Template
+/home/red/projects/granice-llm/Template
 ```
 
 ## `cat /etc/passwd`
@@ -56,40 +58,38 @@ irc:x:39:39:ircd:/run/ircd:/usr/sbin/nologin
 _apt:x:42:65534::/nonexistent:/usr/sbin/nologin
 nobody:x:65534:65534:nobody:/nonexistent:/usr/sbin/nologin
 systemd-network:x:998:998:systemd Network Management:/:/usr/sbin/nologin
-dhcpcd:x:996:996:DHCP Client Daemon:/usr/lib/dhcpcd:/bin/false
-messagebus:x:995:995:System Message Bus:/nonexistent:/usr/sbin/nologin
-syslog:x:100:101::/nonexistent:/usr/sbin/nologin
-systemd-resolve:x:989:989:systemd Resolver:/:/usr/sbin/nologin
-_chrony:x:988:988:Chrony Daemon:/var/lib/chrony:/usr/sbin/nologin
-tss:x:987:987:tss user for tpm2:/:/usr/sbin/nologin
-uuidd:x:101:105::/run/uuidd:/usr/sbin/nologin
-systemd-oom:x:986:986:systemd Userspace OOM Killer:/:/usr/sbin/nologin
-whoopsie:x:102:108::/nonexistent:/bin/false
+systemd-timesync:x:996:996:systemd Time Synchronization:/:/usr/sbin/nologin
+dhcpcd:x:100:65534:DHCP Client Daemon,,,:/usr/lib/dhcpcd:/bin/false
+messagebus:x:101:101::/nonexistent:/usr/sbin/nologin
+syslog:x:102:102::/nonexistent:/usr/sbin/nologin
+systemd-resolve:x:991:991:systemd Resolver:/:/usr/sbin/nologin
+polkitd:x:990:990:User for polkitd:/:/usr/sbin/nologin
+usbmux:x:103:46:usbmux daemon,,,:/var/lib/usbmux:/usr/sbin/nologin
+tss:x:104:103:TPM software stack,,,:/var/lib/tpm:/bin/false
+rtkit:x:105:104:RealtimeKit,,,:/proc:/usr/sbin/nologin
+systemd-coredump:x:989:989:systemd Core Dumper:/:/usr/sbin/nologin
+uuidd:x:106:107::/run/uuidd:/usr/sbin/nologin
+cups-pk-helper:x:107:105:user for cups-pk-helper service,,,:/nonexistent:/usr/sbin/nologin
+avahi-autoipd:x:108:111:Avahi autoip daemon,,,:/var/lib/avahi-autoipd:/usr/sbin/nologin
+kernoops:x:109:65534:Kernel Oops Tracking Daemon,,,:/:/usr/sbin/nologin
+avahi:x:110:112:Avahi mDNS daemon,,,:/run/avahi-daemon:/usr/sbin/nologin
 dnsmasq:x:999:65534:dnsmasq:/var/lib/misc:/usr/sbin/nologin
-avahi:x:103:109:Avahi mDNS daemon:/run/avahi-daemon:/usr/sbin/nologin
-nm-openvpn:x:984:984:NetworkManager OpenVPN:/var/lib/openvpn/chroot:/usr/sbin/nologin
-tcpdump:x:983:983:tcpdump:/nonexistent:/usr/sbin/nologin
-sssd:x:104:110:SSSD system user:/var/lib/sss:/usr/sbin/nologin
-speech-dispatcher:x:105:29:Speech Dispatcher:/run/speech-dispatcher:/bin/false
-usbmux:x:106:46:usbmux daemon:/var/lib/usbmux:/usr/sbin/nologin
-cups-pk-helper:x:107:111:user for cups-pk-helper service:/nonexistent:/usr/sbin/nologin
-fwupd-refresh:x:982:982:Firmware update daemon:/var/lib/fwupd:/usr/sbin/nologin
-saned:x:108:112::/var/lib/saned:/usr/sbin/nologin
-geoclue:x:109:113::/var/lib/geoclue:/usr/sbin/nologin
-cups-browsed:x:110:111::/nonexistent:/usr/sbin/nologin
-pipewire:x:981:981:system user for pipewire:/nonexistent:/usr/sbin/nologin
-hplip:x:111:7:HPLIP system user:/run/hplip:/bin/false
-gnome-remote-desktop:x:980:980:GNOME Remote Desktop:/var/lib/gnome-remote-desktop:/usr/sbin/nologin
-polkitd:x:979:979:User for polkitd:/:/usr/sbin/nologin
-rtkit:x:978:978:RealtimeKit:/proc:/usr/sbin/nologin
-colord:x:977:977:colord colour management daemon:/var/lib/colord:/usr/sbin/nologin
-gdm:x:975:975:Gnome Display Manager:/var/lib/gdm3:/bin/false
-mimson:x:1000:1000:mimson:/home/mimson:/bin/bash
-ollama:x:997:973::/usr/share/ollama:/bin/false
-vboxadd:x:994:1::/var/run/vboxadd:/bin/false
-snapd-range-524288-root:x:524288:524288::/nonexistent:/usr/bin/false
-snap_daemon:x:584788:584788::/nonexistent:/usr/bin/false
-lekarz:x:1001:1001:Lekarz Lekarski,1,9090,9090:/home/lekarz:/bin/bash
-rejestratorka:x:1002:1002:Rejestratorka Med,2,00,00:/home/rejestratorka:/bin/bash
+_flatpak:x:111:115:Flatpak system-wide installation helper,,,:/nonexistent:/usr/sbin/nologin
+nm-openvpn:x:112:116:NetworkManager OpenVPN,,,:/var/lib/openvpn/chroot:/usr/sbin/nologin
+lightdm:x:113:117:Light Display Manager:/var/lib/lightdm:/bin/false
+tcpdump:x:114:119::/nonexistent:/usr/sbin/nologin
+speech-dispatcher:x:115:29:Speech Dispatcher,,,:/run/speech-dispatcher:/bin/false
+fwupd-refresh:x:988:988:Firmware update daemon:/var/lib/fwupd:/usr/sbin/nologin
+geoclue:x:116:120::/var/lib/geoclue:/usr/sbin/nologin
+cups-browsed:x:117:105::/nonexistent:/usr/sbin/nologin
+saned:x:118:123::/var/lib/saned:/usr/sbin/nologin
+hplip:x:119:7:HPLIP system user,,,:/run/hplip:/bin/false
+colord:x:120:124:colord colour management daemon,,,:/var/lib/colord:/usr/sbin/nologin
+red:x:1000:1000:red,,,:/home/red:/bin/bash
+sssd:x:121:126:SSSD system user,,,:/var/lib/sss:/usr/sbin/nologin
+swtpm:x:122:127:virtual TPM software stack,,,:/var/lib/swtpm:/bin/false
+libvirt-qemu:x:64055:993:Libvirt Qemu,,,:/var/lib/libvirt:/usr/sbin/nologin
+libvirt-dnsmasq:x:123:129:Libvirt Dnsmasq,,,:/var/lib/libvirt/dnsmasq:/usr/sbin/nologin
+ollama:x:997:986::/usr/share/ollama:/bin/false
 ```
 
