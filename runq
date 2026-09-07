@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+# ./runq [numer_pokoju] — buduje model z Modelfile, leci przez kolejkę pytań
+# z `questions` (wyniki do ai_results.md), a na koniec otwiera rozmowę
+# interaktywną. Bez kolejki pytań, od razu do rozmowy? Użyj ./run.
+cd "$(dirname "$0")" || exit 1
+exec python3 script.py "$@"

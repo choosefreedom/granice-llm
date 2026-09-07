@@ -5,8 +5,13 @@ Uruchamiasz go z katalogu granice-llm (albo skądkolwiek), podajesz numer pokoju
 (argumentem albo na pytanie), a skrypt sam ładuje Modelfile/questions z folderu
 tego konkretnego pokoju i zapisuje wyniki w JEGO ai_results.md.
 
-Każde pytanie z kolejki = osobne wywołanie `ollama run` = nowa konwersacja.
-Po każdej odpowiedzi pytanie znika z kolejki, a wynik ląduje w ai_results.md.
+Dwa tryby, dwa skróty:
+  ./run  [numer]  -> buduje model z Modelfile (z zaimplementowanymi granicami)
+                     i od razu wchodzi w rozmowę interaktywną — bez kolejki pytań.
+  ./runq [numer]  -> to samo, ale najpierw leci przez kolejkę pytań z `questions`
+                     (każde pytanie = osobne wywołanie `ollama run` = nowa
+                     konwersacja, wynik ląduje w ai_results.md), a dopiero potem
+                     otwiera rozmowę interaktywną.
 """
 
 import os
@@ -31,6 +36,10 @@ INTERACTIVE_AFTER = True      # True = po kolejce oddaje terminal do `ollama run
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 
+# `./run` woła `python3 script.py --no-batch [numer]`, `./runq` woła bez flagi
+NO_BATCH = "--no-batch" in sys.argv[1:]
+ARGS = [a for a in sys.argv[1:] if not a.startswith("--")]
+
 
 def dostepne_pokoje():
     """Lista numerów pokoi, dla których jest folder roomN obok tego skryptu."""
@@ -43,8 +52,8 @@ def dostepne_pokoje():
 
 def wybierz_pokoj():
     """Numer pokoju z argumentu (`python3 script.py 7`) albo z pytania na wejściu."""
-    if len(sys.argv) > 1:
-        numer = sys.argv[1].strip()
+    if ARGS:
+        numer = ARGS[0].strip()
     else:
         print(f"==> dostępne pokoje: {', '.join(str(n) for n in dostepne_pokoje())}")
         numer = input("Numer pokoju: ").strip()
@@ -182,16 +191,8 @@ if USE_MODELFILE:
     if res.returncode != 0:
         sys.exit(f"BŁĄD create: {res.stderr.strip()}")
 
-queue = read_queue()
-total = len(queue)
-print(f"==> {total} pytań w kolejce ({QUESTIONS})")
-
-# kopia zapasowa listy — tylko gdy plik ma być zjadany
-if CONSUME:
-    with open(BACKUP, "w", encoding="utf-8") as f:
-        f.write("\n".join(queue) + "\n")
-
-# tryb zapisu wyników
+# tryb zapisu wyników — potrzebny w obu trybach (i kolejka, i sama rozmowa
+# lądują w tym samym ai_results.md)
 if OUTPUT_MODE == "timestamp":
     base, ext = os.path.splitext(OUTPUT)
     out_path, mode = f"{base}_{datetime.now():%Y-%m-%d_%H%M}{ext}", "w"
@@ -201,38 +202,54 @@ else:
     out_path, mode = OUTPUT, "a"
 print(f"==> zapis do {out_path} (tryb: {OUTPUT_MODE})")
 
-with open(out_path, mode, encoding="utf-8") as out:
-    out.write(f"\n# {RUN_MODEL} — {datetime.now():%Y-%m-%d %H:%M}\n\n")
-    out.flush()
+if NO_BATCH:
+    # ./run — bez kolejki pytań, od razu rozmowa (granice testujecie na żywo)
+    print("==> tryb ./run: pomijam kolejkę pytań (questions), od razu sesja interaktywna")
+    with open(out_path, mode, encoding="utf-8") as out:
+        out.write(f"\n# {RUN_MODEL} — {datetime.now():%Y-%m-%d %H:%M} (bez kolejki pytań)\n\n")
+else:
+    # ./runq — najpierw kolejka pytań z `questions`
+    queue = read_queue()
+    total = len(queue)
+    print(f"==> {total} pytań w kolejce ({QUESTIONS})")
 
-    done = 0
-    while queue:
-        q = queue[0]
-        done += 1
-        print(f"[{done}/{total}] {q[:60]}")
+    # kopia zapasowa listy — tylko gdy plik ma być zjadany
+    if CONSUME:
+        with open(BACKUP, "w", encoding="utf-8") as f:
+            f.write("\n".join(queue) + "\n")
 
-        # echo "pytanie" | ollama run gemma3-batch
-        try:
-            res = sh(["ollama", "run", RUN_MODEL], stdin=q, timeout=TIMEOUT)
-            answer = res.stdout.strip() if res.returncode == 0 else f"BŁĄD: {res.stderr.strip()}"
-        except subprocess.TimeoutExpired:
-            answer = f"BŁĄD: przekroczono {TIMEOUT}s"
-
-        # od razu na ekran, zeby nie trzeba bylo otwierac pliku
-        print(f"\n{'=' * 60}\nODP: {answer}\n{'=' * 60}\n")
-
-        # 1. zapis odpowiedzi
-        out.write(f"### {done}. {q}\n{answer}\n\n{'-' * 60}\n\n")
+    with open(out_path, mode, encoding="utf-8") as out:
+        out.write(f"\n# {RUN_MODEL} — {datetime.now():%Y-%m-%d %H:%M}\n\n")
         out.flush()
 
-        # 2. dopiero teraz pytanie znika z kolejki
-        queue.pop(0)
-        if CONSUME:
-            write_queue(queue)
+        done = 0
+        while queue:
+            q = queue[0]
+            done += 1
+            print(f"[{done}/{total}] {q[:60]}")
 
-print(f"==> gotowe -> {out_path} ({total} pytań, model {RUN_MODEL})")
+            # echo "pytanie" | ollama run gemma3-batch
+            try:
+                res = sh(["ollama", "run", RUN_MODEL], stdin=q, timeout=TIMEOUT)
+                answer = res.stdout.strip() if res.returncode == 0 else f"BŁĄD: {res.stderr.strip()}"
+            except subprocess.TimeoutExpired:
+                answer = f"BŁĄD: przekroczono {TIMEOUT}s"
 
-if INTERACTIVE_AFTER:
+            # od razu na ekran, zeby nie trzeba bylo otwierac pliku
+            print(f"\n{'=' * 60}\nODP: {answer}\n{'=' * 60}\n")
+
+            # 1. zapis odpowiedzi
+            out.write(f"### {done}. {q}\n{answer}\n\n{'-' * 60}\n\n")
+            out.flush()
+
+            # 2. dopiero teraz pytanie znika z kolejki
+            queue.pop(0)
+            if CONSUME:
+                write_queue(queue)
+
+    print(f"==> gotowe -> {out_path} ({total} pytań, model {RUN_MODEL})")
+
+if INTERACTIVE_AFTER or NO_BATCH:
     # oddajemy terminal modelowi — możecie dopytać, zadać pytanie rozstrzygające itd.
     # koniec sesji: /bye albo Ctrl+D. Cała sesja ląduje na końcu ai_results.md.
     print(f"\n==> otwieram interaktywną sesję z {RUN_MODEL} (wyjście: /bye albo Ctrl+D)\n")

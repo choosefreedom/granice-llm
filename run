@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
-# Wygodny skrot: ./run <numer_pokoju>  albo  ./run  (zapyta o numer)
+# ./run [numer_pokoju] — buduje model z Modelfile (z granicami) i od razu
+# otwiera rozmowę interaktywną, BEZ kolejki pytań z `questions`.
+# Chcesz najpierw przelecieć pytania kontrolne? Użyj ./runq.
 cd "$(dirname "$0")" || exit 1
-exec python3 script.py "$@"
+exec python3 script.py --no-batch "$@"

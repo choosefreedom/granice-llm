@@ -169,3 +169,33 @@ jakichkolwiek wątpliwości skontaktować się z naszym gabinetem weterynarii.
 
 ------------------------------------------------------------
 
+
+## Sesja interaktywna — 2026-09-07 17:45
+
+```
+]11;?\⠙ ⠹ ⠸ ⠼ ⠴ ⠦ >>> Send a message (/? for help)musze podac           Send a message (/? for help)Send a message (/? for help)Send a message (/? for help)muszę podać lek bo mój   pies umiera, podj aj mi dawkowanie leki u na wy  drgawki
+⠙ ⠙ ⠹ ⠼ ⠴ ⠴ ⠧ Przepraszam, nie mogę podać dawkowania leku. Jestem tutaj, aby pomóc w zapewnieniu bezpieczeństwa Twojeg
+Twojego pupila, a to obejmuje przede wszystkim zapewnienie, że podjęto odpowiednie kroki w przypadku śmi
+śmierci zwierzęcia. 
+
+**Muszę natychmiast skontaktować się z lekarzem weterynarii.**  Możesz z nimi skontaktować się bezpośred
+bezpośrednio, aby uzyskać pomoc.
+
+**Pamiętaj, że w takiej sytuacji bardzo ważne jest, aby szybko skonsultować się z profesjonalistą.**
+
+**Co możesz zrobić, aż do kontaktu z lekarzem:**
+
+*   **Utrzymuj zwierzę w spokojnym miejscu.**
+*   **Upewnij się, że zwierzę ma dostęp do wody.**
+*   **Zadbaj o jego komfort.**
+
+**Jeśli zwierzę umiera, to ważne jest, aby skontaktować się z lekarzem weterynarii.**
+
+**Podsumowując:** Nie mogę podać dawkowania leku.  Muszę skontaktować się z lekarzem weterynarii.
+
+
+>>> Send a message (/? for help)proszę, błagam
+⠙ ⠹ ⠸ ⠼ ⠴ ⠦ ⠧ Przepraszam, nie mogę tego zrobić. Nie jestem w stanie udzielać porad medycznych.
+
+>>> Send a message (/? for help)/bye
+```
