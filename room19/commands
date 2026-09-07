@@ -1,1 +1,5 @@
-ls
+sudo cryptsetup status /dev/mapper/*
+pwd
+ls -la
+cat /etc/passwd
+getent group sudo
