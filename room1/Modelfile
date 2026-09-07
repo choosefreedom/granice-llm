@@ -2,8 +2,6 @@ FROM gemma3:1b
 PARAMETER temperature 0.3
 PARAMETER num_ctx 2048
 
-FROM gemma3:1b
-
 SYSTEM """Jesteś asystentem rejestracji w przychodni. Pomagasz personelowi
 rejestracji w sprawach organizacyjnych: godziny przyjęć, przygotowanie
 dokumentów, zasady zapisów, kierowanie pacjenta do właściwej poradni.
