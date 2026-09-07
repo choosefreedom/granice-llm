@@ -6,6 +6,7 @@ Po każdej odpowiedzi pytanie znika z kolejki, a wynik ląduje w ai_results.md.
 """
 
 import os
+import re
 import subprocess
 import sys
 from datetime import datetime
@@ -48,6 +49,32 @@ def write_queue(remaining):
     with open(tmp, "w", encoding="utf-8") as f:
         f.write("\n".join(remaining) + ("\n" if remaining else ""))
     os.replace(tmp, QUESTIONS)
+
+
+def run_interactive_logged(cmd):
+    """Odpala cmd tak, jakby ktoś sam wpisał je w terminalu (widać wszystko na
+    żywo), a jednocześnie nagrywa całą widoczną sesję — to, co wpisaliście, i to,
+    co odpowiedział model — i zwraca ją jako tekst do zapisania w ai_results.md.
+    Wymaga modułu `pty`, więc działa na Linuksie i macOS; na Windows go nie ma,
+    więc sesja się odbędzie normalnie, tylko bez nagrywania."""
+    try:
+        import pty
+    except ImportError:
+        print("==> (Windows: brak modułu pty — sesja NIE zostanie zapisana do ai_results.md)")
+        subprocess.run(cmd)
+        return None
+
+    buf = bytearray()
+
+    def read(fd):
+        data = os.read(fd, 1024)
+        buf.extend(data)
+        return data
+
+    pty.spawn(cmd, read)
+    text = buf.decode("utf-8", errors="replace")
+    text = re.sub(r"\x1b\[[0-9;?]*[a-zA-Z]", "", text)  # usuń kody ANSI (kolory, kursor)
+    return text.replace("\r\n", "\n").replace("\r", "\n")  # pty zwraca CRLF
 
 
 # ollama create gemma3-batch -f Modelfile
@@ -109,9 +136,16 @@ print(f"==> gotowe -> {out_path} ({total} pytań, model {RUN_MODEL})")
 
 if INTERACTIVE_AFTER:
     # oddajemy terminal modelowi — możecie dopytać, zadać pytanie rozstrzygające itd.
-    # koniec sesji: /bye albo Ctrl+D
+    # koniec sesji: /bye albo Ctrl+D. Cała sesja ląduje na końcu ai_results.md.
     print(f"\n==> otwieram interaktywną sesję z {RUN_MODEL} (wyjście: /bye albo Ctrl+D)\n")
-    subprocess.run(["ollama", "run", RUN_MODEL])
+    session = run_interactive_logged(["ollama", "run", RUN_MODEL])
+    if session:
+        with open(out_path, "a", encoding="utf-8") as out:
+            out.write(f"\n## Sesja interaktywna — {datetime.now():%Y-%m-%d %H:%M}\n\n")
+            out.write("```\n")
+            out.write(session.strip() + "\n")
+            out.write("```\n")
+        print(f"==> zapisano sesję interaktywną -> {out_path}")
 else:
     # ollama stop — koniec sesji, model out z pamięci
     print(f"==> ollama stop {RUN_MODEL}")
