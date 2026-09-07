@@ -2,11 +2,10 @@
 """
 Uruchamia model Ollamy z Modelfile i zadaje mu pytania z pliku questions.
 Każde pytanie = osobne wywołanie `ollama run` = nowa konwersacja.
-Po każdej odpowiedzi pytanie znika z kolejki, a wynik ląduje w ai_results.md.
+Po każdej odpowiedzi pytanie znika z kolejki, a wynik ląduje w ai_results.txt.
 """
 
 import os
-import re
 import subprocess
 import sys
 from datetime import datetime
@@ -18,11 +17,10 @@ MODELFILE = "Modelfile"       # w środku ma być: FROM gemma3:1b
 USE_MODELFILE = True          # False = odpal wprost gemma3:1b, bez `ollama create`
 QUESTIONS = "questions"       # plik z pytaniami (zmieniasz go między przebiegami)
 CONSUME = False               # True = pytanie znika z pliku po odpowiedzi
-OUTPUT = "ai_results.md"
+OUTPUT = "ai_results.txt"
 OUTPUT_MODE = "append"        # "append" = dopisuje | "overwrite" = kasuje stare | "timestamp" = nowy plik co przebieg
 BACKUP = "questions.bak"      # kopia pełnej listy, robiona na starcie
 TIMEOUT = 600                 # sekundy na jedno pytanie
-INTERACTIVE_AFTER = True      # True = po kolejce oddaje terminal do `ollama run` (dopytywanie na żywo)
 # --------------------
 
 RUN_MODEL = MODEL if USE_MODELFILE else BASE_MODEL
@@ -49,32 +47,6 @@ def write_queue(remaining):
     with open(tmp, "w", encoding="utf-8") as f:
         f.write("\n".join(remaining) + ("\n" if remaining else ""))
     os.replace(tmp, QUESTIONS)
-
-
-def run_interactive_logged(cmd):
-    """Odpala cmd tak, jakby ktoś sam wpisał je w terminalu (widać wszystko na
-    żywo), a jednocześnie nagrywa całą widoczną sesję — to, co wpisaliście, i to,
-    co odpowiedział model — i zwraca ją jako tekst do zapisania w ai_results.md.
-    Wymaga modułu `pty`, więc działa na Linuksie i macOS; na Windows go nie ma,
-    więc sesja się odbędzie normalnie, tylko bez nagrywania."""
-    try:
-        import pty
-    except ImportError:
-        print("==> (Windows: brak modułu pty — sesja NIE zostanie zapisana do ai_results.md)")
-        subprocess.run(cmd)
-        return None
-
-    buf = bytearray()
-
-    def read(fd):
-        data = os.read(fd, 1024)
-        buf.extend(data)
-        return data
-
-    pty.spawn(cmd, read)
-    text = buf.decode("utf-8", errors="replace")
-    text = re.sub(r"\x1b\[[0-9;?]*[a-zA-Z]", "", text)  # usuń kody ANSI (kolory, kursor)
-    return text.replace("\r\n", "\n").replace("\r", "\n")  # pty zwraca CRLF
 
 
 # ollama create gemma3-batch -f Modelfile
@@ -120,9 +92,6 @@ with open(out_path, mode, encoding="utf-8") as out:
         except subprocess.TimeoutExpired:
             answer = f"BŁĄD: przekroczono {TIMEOUT}s"
 
-        # od razu na ekran, zeby nie trzeba bylo otwierac pliku
-        print(f"\n{'=' * 60}\nODP: {answer}\n{'=' * 60}\n")
-
         # 1. zapis odpowiedzi
         out.write(f"### {done}. {q}\n{answer}\n\n{'-' * 60}\n\n")
         out.flush()
@@ -132,21 +101,7 @@ with open(out_path, mode, encoding="utf-8") as out:
         if CONSUME:
             write_queue(queue)
 
+# ollama stop — koniec sesji, model out z pamięci
+print(f"==> ollama stop {RUN_MODEL}")
+sh(["ollama", "stop", RUN_MODEL])
 print(f"==> gotowe -> {out_path} ({total} pytań, model {RUN_MODEL})")
-
-if INTERACTIVE_AFTER:
-    # oddajemy terminal modelowi — możecie dopytać, zadać pytanie rozstrzygające itd.
-    # koniec sesji: /bye albo Ctrl+D. Cała sesja ląduje na końcu ai_results.md.
-    print(f"\n==> otwieram interaktywną sesję z {RUN_MODEL} (wyjście: /bye albo Ctrl+D)\n")
-    session = run_interactive_logged(["ollama", "run", RUN_MODEL])
-    if session:
-        with open(out_path, "a", encoding="utf-8") as out:
-            out.write(f"\n## Sesja interaktywna — {datetime.now():%Y-%m-%d %H:%M}\n\n")
-            out.write("```\n")
-            out.write(session.strip() + "\n")
-            out.write("```\n")
-        print(f"==> zapisano sesję interaktywną -> {out_path}")
-else:
-    # ollama stop — koniec sesji, model out z pamięci
-    print(f"==> ollama stop {RUN_MODEL}")
-    sh(["ollama", "stop", RUN_MODEL])
