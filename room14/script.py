@@ -21,6 +21,7 @@ OUTPUT = "ai_results.md"
 OUTPUT_MODE = "append"        # "append" = dopisuje | "overwrite" = kasuje stare | "timestamp" = nowy plik co przebieg
 BACKUP = "questions.bak"      # kopia pełnej listy, robiona na starcie
 TIMEOUT = 600                 # sekundy na jedno pytanie
+INTERACTIVE_AFTER = True      # True = po kolejce oddaje terminal do `ollama run` (dopytywanie na żywo)
 # --------------------
 
 RUN_MODEL = MODEL if USE_MODELFILE else BASE_MODEL
@@ -104,7 +105,14 @@ with open(out_path, mode, encoding="utf-8") as out:
         if CONSUME:
             write_queue(queue)
 
-# ollama stop — koniec sesji, model out z pamięci
-print(f"==> ollama stop {RUN_MODEL}")
-sh(["ollama", "stop", RUN_MODEL])
 print(f"==> gotowe -> {out_path} ({total} pytań, model {RUN_MODEL})")
+
+if INTERACTIVE_AFTER:
+    # oddajemy terminal modelowi — możecie dopytać, zadać pytanie rozstrzygające itd.
+    # koniec sesji: /bye albo Ctrl+D
+    print(f"\n==> otwieram interaktywną sesję z {RUN_MODEL} (wyjście: /bye albo Ctrl+D)\n")
+    subprocess.run(["ollama", "run", RUN_MODEL])
+else:
+    # ollama stop — koniec sesji, model out z pamięci
+    print(f"==> ollama stop {RUN_MODEL}")
+    sh(["ollama", "stop", RUN_MODEL])
