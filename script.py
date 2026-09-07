@@ -1,7 +1,11 @@
 #!/usr/bin/env python3
 """
-Uruchamia model Ollamy z Modelfile i zadaje mu pytania z pliku questions.
-Każde pytanie = osobne wywołanie `ollama run` = nowa konwersacja.
+Jeden wspólny skrypt dla wszystkich pokoi — nie trzeba wchodzić do folderu roomN.
+Uruchamiasz go z katalogu granice-llm (albo skądkolwiek), podajesz numer pokoju
+(argumentem albo na pytanie), a skrypt sam ładuje Modelfile/questions z folderu
+tego konkretnego pokoju i zapisuje wyniki w JEGO ai_results.md.
+
+Każde pytanie z kolejki = osobne wywołanie `ollama run` = nowa konwersacja.
 Po każdej odpowiedzi pytanie znika z kolejki, a wynik ląduje w ai_results.md.
 """
 
@@ -25,11 +29,45 @@ TIMEOUT = 600                 # sekundy na jedno pytanie
 INTERACTIVE_AFTER = True      # True = po kolejce oddaje terminal do `ollama run` (dopytywanie na żywo)
 # --------------------
 
-RUN_MODEL = MODEL if USE_MODELFILE else BASE_MODEL
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 
-# wszystkie ścieżki liczone względem katalogu skryptu,
-# więc można go odpalić z dowolnego miejsca w systemie
-os.chdir(os.path.dirname(os.path.abspath(__file__)))
+
+def dostepne_pokoje():
+    """Lista numerów pokoi, dla których jest folder roomN obok tego skryptu."""
+    numery = []
+    for nazwa in os.listdir(SCRIPT_DIR):
+        if nazwa.startswith("room") and nazwa[4:].isdigit():
+            numery.append(int(nazwa[4:]))
+    return sorted(numery)
+
+
+def wybierz_pokoj():
+    """Numer pokoju z argumentu (`python3 script.py 7`) albo z pytania na wejściu."""
+    if len(sys.argv) > 1:
+        numer = sys.argv[1].strip()
+    else:
+        print(f"==> dostępne pokoje: {', '.join(str(n) for n in dostepne_pokoje())}")
+        numer = input("Numer pokoju: ").strip()
+
+    if not numer.isdigit():
+        sys.exit(f"BŁĄD: '{numer}' to nie jest numer pokoju")
+    numer = str(int(numer))  # "01" -> "1", "007" -> "7"
+
+    room_dir = os.path.join(SCRIPT_DIR, f"room{numer}")
+    if not os.path.isdir(room_dir):
+        sys.exit(f"BŁĄD: nie ma folderu {room_dir}")
+
+    return numer, room_dir
+
+
+ROOM, ROOM_DIR = wybierz_pokoj()
+print(f"==> pokój {ROOM} -> {ROOM_DIR}")
+
+# reszta ścieżek (Modelfile, questions, ai_results.md...) liczona jest już
+# względem folderu WYBRANEGO pokoju
+os.chdir(ROOM_DIR)
+
+RUN_MODEL = MODEL if USE_MODELFILE else BASE_MODEL
 
 
 def sh(cmd, stdin=None, timeout=None):
@@ -55,23 +93,83 @@ def run_interactive_logged(cmd):
     """Odpala cmd tak, jakby ktoś sam wpisał je w terminalu (widać wszystko na
     żywo), a jednocześnie nagrywa całą widoczną sesję — to, co wpisaliście, i to,
     co odpowiedział model — i zwraca ją jako tekst do zapisania w ai_results.md.
-    Wymaga modułu `pty`, więc działa na Linuksie i macOS; na Windows go nie ma,
-    więc sesja się odbędzie normalnie, tylko bez nagrywania."""
+
+    W przeciwieństwie do zwykłego `pty.spawn`, na starcie kopiuje rozmiar
+    prawdziwego terminala do tego wewnętrznego (i dopasowuje go na bieżąco przy
+    zmianie rozmiaru okna) — bez tego pełnoekranowy interfejs `ollama run`
+    dostaje zerowy/losowy rozmiar i gubi się przy każdym wpisywanym znaku.
+
+    Wymaga modułów `pty`/`termios`/`fcntl`, więc działa na Linuksie i macOS; na
+    Windows ich nie ma, więc sesja się odbędzie normalnie, tylko bez nagrywania."""
     try:
+        import fcntl
         import pty
+        import select
+        import signal
+        import struct
+        import termios
+        import tty
     except ImportError:
-        print("==> (Windows: brak modułu pty — sesja NIE zostanie zapisana do ai_results.md)")
+        print("==> (Windows: brak pty/termios — sesja NIE zostanie zapisana do ai_results.md)")
         subprocess.run(cmd)
         return None
 
+    def winsize():
+        try:
+            return fcntl.ioctl(sys.stdin.fileno(), termios.TIOCGWINSZ, b"\0" * 8)
+        except OSError:
+            return struct.pack("HHHH", 24, 80, 0, 0)  # fallback: 24 wiersze, 80 kolumn
+
+    pid, master_fd = pty.fork()
+    if pid == 0:  # proces potomny -> staje się `ollama run`
+        os.execvp(cmd[0], cmd)
+        os._exit(1)  # tylko gdyby execvp się nie powiodło
+
+    def sync_winsize(*_a):
+        try:
+            fcntl.ioctl(master_fd, termios.TIOCSWINSZ, winsize())
+        except OSError:
+            pass
+
+    sync_winsize()
+    old_sigwinch = signal.signal(signal.SIGWINCH, sync_winsize)
+
+    try:
+        old_tty = termios.tcgetattr(sys.stdin.fileno())
+        tty.setraw(sys.stdin.fileno())
+        restore_tty = True
+    except termios.error:
+        restore_tty = False
+
     buf = bytearray()
+    watch = [master_fd, sys.stdin.fileno()]
+    try:
+        while master_fd in watch:
+            rfds, _, _ = select.select(watch, [], [])
+            if master_fd in rfds:
+                try:
+                    data = os.read(master_fd, 1024)
+                except OSError:
+                    data = b""
+                if not data:
+                    break  # ollama zakończył działanie (/bye, Ctrl+D w środku, błąd...)
+                buf.extend(data)
+                os.write(sys.stdout.fileno(), data)
+            if sys.stdin.fileno() in rfds:
+                data = os.read(sys.stdin.fileno(), 1024)
+                if not data:
+                    # nasze stdin się zamknęło (rzadkie) — przestań go nasłuchiwać,
+                    # ale czekaj dalej na to, co jeszcze odpowie ollama
+                    watch.remove(sys.stdin.fileno())
+                else:
+                    os.write(master_fd, data)
+    finally:
+        if restore_tty:
+            termios.tcsetattr(sys.stdin.fileno(), termios.TCSAFLUSH, old_tty)
+        signal.signal(signal.SIGWINCH, old_sigwinch)
+        os.close(master_fd)
+        os.waitpid(pid, 0)
 
-    def read(fd):
-        data = os.read(fd, 1024)
-        buf.extend(data)
-        return data
-
-    pty.spawn(cmd, read)
     text = buf.decode("utf-8", errors="replace")
     text = re.sub(r"\x1b\[[0-9;?]*[a-zA-Z]", "", text)  # usuń kody ANSI (kolory, kursor)
     return text.replace("\r\n", "\n").replace("\r", "\n")  # pty zwraca CRLF

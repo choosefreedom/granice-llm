@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
-# Wygodny skrot: ./run  zamiast  python3 script.py
+# Wygodny skrot: ./run <numer_pokoju>  albo  ./run  (zapyta o numer)
 cd "$(dirname "$0")" || exit 1
 exec python3 script.py "$@"
